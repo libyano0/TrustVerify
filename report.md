@@ -1,6 +1,6 @@
 # TrustVerify – Project Report
 
-**Team:** [Your Team Name]  
+**Team:** CipherGuard Duo  
 **Date:** March 2026  
 **Tool:** `trustverify.py` – CLI for File Integrity and Digital Signatures
 
@@ -8,37 +8,48 @@
 
 ## 1. Why Hashing Alone Is Not Enough to Prove Identity
 
-A SHA-256 hash guarantees **integrity**: if even one byte of a file changes, the hash changes. This means a receiver can detect accidental corruption or unauthorized modification of a file.
+A SHA-256 hash guarantees **integrity**: if even one byte of a file changes, the hash changes. This allows the receiver to detect accidental corruption or unauthorized modification.
 
-However, hashing provides **no authenticity**. Consider this attack:
+However, hashing alone does **not** provide **authenticity**. Consider the following attack:
 
-1. Alice sends Bob `metadata.json` + its SHA-256 hash.
-2. Mallory (a man-in-the-middle) intercepts both.
-3. Mallory replaces `metadata.json` with her own tampered version.
-4. Mallory **recomputes** a new SHA-256 of her tampered file and sends that instead.
-5. Bob verifies the hash — it matches — and he has no way to know the file came from Mallory, not Alice.
+1. Alice sends Bob `metadata.json` and its SHA-256 hash.
+2. Mallory intercepts both.
+3. Mallory replaces `metadata.json` with a tampered version.
+4. Mallory recomputes the SHA-256 hash of the tampered file.
+5. Bob receives the tampered file and the new hash, verifies them, and sees that they match.
 
-The hash only proves that the file matches *the hash that was sent*. It cannot prove **who** generated that hash. Anyone can compute a SHA-256. There is no secret involved, so there is no proof of origin. This is the **integrity vs. authenticity** gap.
+In this case, Bob can confirm that the file matches the hash he received, but he still cannot prove that the file actually came from Alice. This is because **anyone** can compute a SHA-256 hash. There is no secret involved and no cryptographic proof of origin.
+
+Therefore, hashing alone provides **integrity**, but not **identity** or **authenticity**.
 
 ---
 
 ## 2. How Public/Private Keys Ensure Non-Repudiation
 
-RSA digital signatures close this gap using asymmetric cryptography:
+RSA digital signatures solve this problem using asymmetric cryptography:
 
-- Alice generates a **key pair**: a private key (secret, never shared) and a public key (shared openly).
-- To sign, Alice computes the SHA-256 of `metadata.json` and **encrypts that hash with her private key** — this encrypted hash is the *signature*.
-- To verify, Bob uses Alice's **public key to decrypt** the signature, recovering the hash. He then independently computes the SHA-256 of the received `metadata.json` and compares the two values.
+- Alice generates a **key pair** consisting of a private key and a public key.
+- The **private key** is kept secret.
+- The **public key** is shared openly.
 
-**Why this ensures non-repudiation:**
+To sign the manifest, Alice signs the hash of `metadata.json` using her **private key**.  
+To verify the signature, Bob uses Alice’s **public key** to check that the signature is valid and that it matches the received `metadata.json`.
+
+This provides several security guarantees:
 
 | Property | Explanation |
 |---|---|
-| **Only Alice can sign** | The private key never leaves Alice's machine. No one else can produce a valid signature for her public key. |
-| **Anyone can verify** | The public key is openly shared. Bob (or any third party) can confirm the signature without any shared secret. |
-| **Non-repudiation** | If the signature is valid, Alice cannot later deny having signed it — the signature is cryptographically bound to her private key. |
-| **Tamper detection** | If Mallory modifies `metadata.json`, the SHA-256 changes. Bob's computed hash won't match the decrypted hash from Alice's signature → verification fails. Unlike hashing alone, Mallory cannot forge a new valid signature because she doesn't have Alice's private key. |
+| **Only Alice can sign** | Only the holder of the private key can generate a valid signature. |
+| **Anyone can verify** | Anyone with Alice’s public key can verify the signature. |
+| **Non-repudiation** | If the signature is valid, Alice cannot reasonably deny signing the file because the signature is linked to her private key. |
+| **Tamper detection** | If the manifest is modified after signing, the signature verification fails. |
 
-In `TrustVerify`, we use **RSA-PSS** (Probabilistic Signature Scheme) with SHA-256 — the current recommended RSA padding scheme — which adds cryptographic randomness (salt) to prevent certain attacks like chosen-plaintext attacks that are possible with deterministic RSA-PKCS#1 v1.5.
+In `TrustVerify`, RSA-PSS with SHA-256 is used as the digital signature scheme. This is a modern and secure RSA signature method.
 
-**Summary:** Hashing provides integrity. Digital signatures provide integrity *and* authenticity *and* non-repudiation — the three pillars of a secure file transfer system.
+**Summary:** Hashing provides integrity, while digital signatures provide integrity, authenticity, and non-repudiation.
+
+---
+
+## Conclusion
+
+This project shows that hashing is useful for detecting whether a file has changed, but it cannot prove who sent the file. By combining SHA-256 hashing with RSA digital signatures, `TrustVerify` can both detect tampering and verify that the manifest was signed by the legitimate sender.
