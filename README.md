@@ -16,12 +16,5 @@ TrustVerify is a Python CLI tool for file integrity verification and digital sig
 - Verify the signature using the public key
 
 ## Requirements
+```bash
 pip install cryptography
-
-## Example Commands
-python trustverify.py hash test.txt
-python trustverify.py manifest myfiles
-python trustverify.py check myfiles myfiles/metadata.json
-python trustverify.py genkeys
-python trustverify.py sign myfiles/metadata.json
-python trustverify.py verify myfiles/metadata.json signature.bin
