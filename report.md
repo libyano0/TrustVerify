@@ -2,8 +2,10 @@
 
 **Team:** CipherGuard Duo  
 **Members:**  
-- Bashir Tayani — 220201812  
-- Ahmed Esmaeel — 210208964  
+- Ahmed Esmaeel — 210208964
+- Mariam Mohamed - 210208770
+- Arwa abouelseoud - 220208732
+
 
 **Date:** March 2026  
 **Tool:** `trustverify.py` – CLI for File Integrity and Digital Signatures
