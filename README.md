@@ -25,9 +25,3 @@ python trustverify.py check myfiles myfiles/metadata.json
 python trustverify.py genkeys
 python trustverify.py sign myfiles/metadata.json
 python trustverify.py verify myfiles/metadata.json signature.bin
-
-## Submission Contents
-- Python script
-- Brief report
-- GitHub repository
-- Unlisted YouTube demo link
