@@ -1,6 +1,10 @@
 # TrustVerify – Project Report
 
 **Team:** CipherGuard Duo  
+**Members:**  
+- Bashir Tayani — 220201812  
+- Ahmed Esmaeel — 210208964  
+
 **Date:** March 2026  
 **Tool:** `trustverify.py` – CLI for File Integrity and Digital Signatures
 
